@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VINYL LABEL BUILDER // NEO-BRUTALIST EDITION</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Space+Grotesk:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink: #FF006E;
+            --pink-light: #FF4D9E;
+            --bordeaux: #720026;
+            --bordeaux-light: #9D1B48;
+            --cold-blue: #00F5FF;
+            --cold-blue-dark: #00C8D6;
+            --rose: #FFB3C6;
+            --rose-dark: #FF8FAB;
+            --black: #0a0a0a;
+            --white: #ffffff;
+            --yellow: #FFE100;
+            --green: #00FF88;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Space Grotesk', monospace;
+            background: var(--black);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+        
+        /* NOISE OVERLAY */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+        }
+        
+        /* CONTROL PANEL */
+        .control-panel {
+            background: var(--white);
+            color: var(--black);
+            padding: 0;
+            overflow-y: auto;
+            max-height: 100vh;
+            border-right: 6px solid var(--black);
+            position: relative;
+            box-shadow: 8px 0 0 var(--pink);
+        }
+        
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--pink) 0px,
+                var(--pink) 20px,
+                var(--cold-blue) 20px,
+                var(--cold-blue) 40px,
+                var(--yellow) 40px,
+                var(--yellow) 60px
+            );
+        }
+        
+        .panel-header {
+            padding: 32px 24px;
+            background: var(--black);
+            color: var(--white);
+            position: relative;
+            border-bottom: 6px solid var(--pink);
+            margin-top: 8px;
+        }
+        
+        .panel-header::after {
+            content: '⚡';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 32px;
+            animation: flash 2s infinite;
+        }
+        
+        @keyframes flash {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.2); }
+        }
+        
+        .panel-header h1 {
+            font-family: 'Archivo Black', 'Anton', sans-serif;
+            font-size: 28px;
+            line-height: 0.9;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            color: var(--pink);
+            text-shadow: 3px 3px 0 var(--cold-blue);
+        }
+        
+        .panel-header .subtitle {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--cold-blue);
+            text-transform: uppercase;
+        }
+        
+        .panel-header .warning {
+            font-size: 10px;
+            color: var(--yellow);
+            margin-top: 8px;
+            font-weight: 700;
+            border: 2px solid var(--yellow);
+            display: inline-block;
+            padding: 4px 8px;
+            transform: rotate(-1deg);
+        }
+        
+        /* MARQUEE */
+        .marquee {
+            background: var(--pink);
+            color: var(--white);
+            padding: 8px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            border-top: 4px solid var(--black);
+            border-bottom: 4px solid var(--black);
+        }
+        
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        /* SECTIONS */
+        .section {
+            border-bottom: 4px solid var(--black);
+            position: relative;
+        }
+        
+        .section-header {
+            background: var(--pink);
+            padding: 12px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            border-bottom: 4px solid var(--black);
+        }
+        
+        .section-header:hover {
+            background: var(--pink-light);
+            padding-left: 28px;
+        }
+        
+        .section-header.active {
+            background: var(--bordeaux);
+        }
+        
+        .section-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--white);
+            text-shadow: 2px 2px 0 var(--black);
+        }
+        
+        .section-toggle {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--white);
+            transition: transform 0.3s;
+        }
+        
+        .section-content {
+            padding: 20px 24px;
+            background: var(--white);
+            display: none;
+        }
+        
+        .section-content.open {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* TEMPLATE GRID */
+        .template-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .template-btn {
+            background: var(--white);
+            border: 4px solid var(--black);
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+            position: relative;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+        
+        .template-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--black);
+        }
+        
+        .template-btn.active {
+            background: var(--cold-blue);
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 var(--black);
+        }
+        
+        .template-btn.active::after {
+            content: '✓';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--pink);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            border: 3px solid var(--black);
+        }
+        
+        .template-btn .thumb {
+            width: 100%;
+            height: 50px;
+            background: var(--rose);
+            border: 3px solid var(--black);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 9px;
+            color: var(--black);
+            text-transform: uppercase;
+        }
+        
+        .template-btn span {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* FORM ELEMENTS */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            color: var(--black);
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--white);
+            border: 4px solid var(--black);
+            font-family: 'Space Grotesk', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--black);
+            box-shadow: 4px 4px 0 var(--black);
+            transition: all 0.15s;
+            outline: none;
+        }
+        
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus,
+        .form-group select:focus {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--pink);
+        }
+        
+        .form-group input[type="color"] {
+            width: 100%;
+            height: 50px;
+            border: 4px solid var(--black);
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+        
+        .form-group input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 12px;
+            background: var(--rose);
+            border: 3px solid var(--black);
+            outline: none;
+            margin-top: 8px;
+        }
+        
+        .form-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--pink);
+            border: 3px solid var(--black);
+            cursor: pointer;
+            box-shadow: 2px 2px 0 var(--black);
+        }
+        
+        .form-group input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: var(--pink);
+            border: 3px solid var(--black);
+            cursor: pointer;
+            box-shadow: 2px 2px 0 var(--black);
+        }
+        
+        .range-value {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--pink);
+            text-align: right;
+            margin-top: 4px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* RADIO GROUPS */
+        .radio-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .radio-btn {
+            flex: 1;
+            min-width: 60px;
+        }
+        
+        .radio-btn input {
+            display: none;
+        }
+        
+        .radio-btn label {
+            display: block;
+            padding: 10px 8px;
+            background: var(--white);
+            border: 3px solid var(--black);
+            text-align: center;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 10px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 3px 3px 0 var(--black);
+        }
+        
+        .radio-btn input:checked + label {
+            background: var(--pink);
+            color: var(--white);
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 var(--black);
+        }
+        
+        /* TOGGLES */
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--rose);
+            border: 3px solid var(--black);
+        }
+        
+        .toggle-label {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .toggle {
+            position: relative;
+            width: 56px;
+            height: 28px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--white);
+            border: 3px solid var(--black);
+            transition: 0.2s;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--black);
+            transition: 0.2s;
+            border: 2px solid var(--black);
+        }
+        
+        .toggle input:checked + .toggle-slider {
+            background: var(--cold-blue);
+        }
+        
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+            background: var(--pink);
+        }
+        
+        /* FILE UPLOAD */
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-upload-label {
+            display: block;
+            padding: 20px;
+            background: var(--cold-blue);
+            border: 4px solid var(--black);
+            text-align: center;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--black);
+            transition: all 0.15s;
+            box-shadow: 4px 4px 0 var(--black);
+        }
+        
+        .file-upload:hover .file-upload-label {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--black);
+            background: var(--cold-blue-dark);
+        }
+        
+        .image-preview {
+            width: 100%;
+            height: 100px;
+            background: var(--rose);
+            border: 4px solid var(--black);
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--bordeaux);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .image-preview::after {
+            content: 'PREVIEW';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: var(--pink);
+            color: white;
+            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: 900;
+        }
+        
+        /* ACTION BUTTONS */
+        .action-section {
+            padding: 24px;
+            background: var(--black);
+            position: sticky;
+            bottom: 0;
+            border-top: 6px solid var(--pink);
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 16px 24px;
+            border: 4px solid var(--black);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--pink);
+            color: var(--white);
+            box-shadow: 6px 6px 0 var(--cold-blue);
+        }
+        
+        .btn-primary:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 9px 9px 0 var(--cold-blue);
+        }
+        
+        .btn-secondary {
+            background: var(--cold-blue);
+            color: var(--black);
+            box-shadow: 6px 6px 0 var(--pink);
+        }
+        
+        .btn-secondary:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 9px 9px 0 var(--pink);
+        }
+        
+        .btn-danger {
+            background: var(--bordeaux);
+            color: var(--white);
+            box-shadow: 6px 6px 0 var(--yellow);
+        }
+        
+        .btn-danger:hover {
+            transform: translate(-3px, -3px);
+            box-shadow: 9px 9px 0 var(--yellow);
+        }
+        
+        /* PREVIEW AREA */
+        .preview-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            background: repeating-linear-gradient(
+                45deg,
+                #111 0px,
+                #111 10px,
+                #1a1a1a 10px,
+                #1a1a1a 20px
+            );
+            overflow: hidden;
+        }
+        
+        .preview-area::before {
+            content: 'PREVIEW MODE';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 48px;
+            color: rgba(255, 255, 255, 0.03);
+            text-transform: uppercase;
+            pointer-events: none;
+            transform: rotate(-5deg);
+        }
+        
+        .preview-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 20px 40px rgba(0,0,0,0.8));
+        }
+        
+        #previewCanvas {
+            max-width: 100%;
+            max-height: 65vh;
+            border: 6px solid var(--black);
+            box-shadow: 
+                0 0 0 6px var(--pink),
+                0 0 0 12px var(--black),
+                0 20px 60px rgba(0,0,0,0.8);
+            background: transparent;
+        }
+        
+        /* FLOATING CONTROLS */
+        .preview-controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: var(--white);
+            padding: 16px 24px;
+            border: 4px solid var(--black);
+            box-shadow: 8px 8px 0 var(--pink);
+            z-index: 100;
+        }
+        
+        .spin-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .spin-control label {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--black);
+        }
+        
+        .rpm-display {
+            font-family: 'Space Grotesk', monospace;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--pink);
+            background: var(--black);
+            padding: 4px 12px;
+            border: 2px solid var(--black);
+        }
+        
+        /* SAFE AREA TOGGLE */
+        .safe-area-toggle {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: var(--yellow);
+            color: var(--black);
+            padding: 12px 20px;
+            border: 4px solid var(--black);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--black);
+            transition: all 0.15s;
+            z-index: 100;
+        }
+        
+        .safe-area-toggle:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 var(--black);
+        }
+        
+        .safe-area-toggle.active {
+            background: var(--green);
+        }
+        
+        /* STATS DISPLAY */
+        .stats-display {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: var(--black);
+            border: 4px solid var(--cold-blue);
+            padding: 16px;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 11px;
+            color: var(--cold-blue);
+            z-index: 100;
+        }
+        
+        .stats-display div {
+            margin-bottom: 4px;
+        }
+        
+        .stats-display span {
+            color: var(--pink);
+            font-weight: 700;
+        }
+        
+        /* HIDDEN EXPORT CANVAS */
+        #exportCanvas {
+            display: none;
+        }
+        
+        /* NOTIFICATION */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--green);
+            color: var(--black);
+            padding: 16px 24px;
+            border: 4px solid var(--black);
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 13px;
+            text-transform: uppercase;
+            box-shadow: 8px 8px 0 var(--black);
+            z-index: 10001;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: var(--bordeaux);
+            color: var(--white);
+        }
+        
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 16px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--black);
+            border-left: 4px solid var(--black);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--pink);
+            border: 4px solid var(--black);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cold-blue);
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .panel-header h1 {
+                font-size: 20px;
+            }
+            
+            .preview-controls {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px;
+            }
+            
+            .safe-area-toggle,
+            .stats-display {
+                position: relative;
+                top: auto;
+                right: auto;
+                left: auto;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification">Export erfolgreich!</div>
+    
+    <div class="app-container">
+        <!-- Control Panel -->
+        <aside class="control-panel">
+            <div class="panel-header">
+                <h1>VINYL LABEL<br>BUILDER</h1>
+                <div class="subtitle">Neo-Brutalist Edition v2.0</div>
+                <div class="warning">⚠️ SERIOUS BUSINESS ONLY</div>
+            </div>
+            
+            <!-- Marquee -->
+            <div class="marquee">
+                <div class="marquee-content">
+                    DESIGN YOUR VINYL • MAKE IT LOUD • EXPORT THAT SHIT • SPIN IT TILL YOU WIN IT • DESIGN YOUR VINYL • MAKE IT LOUD • EXPORT THAT SHIT • SPIN IT TILL YOU WIN IT •
+                </div>
+            </div>
+            
+            <!-- Template Selection -->
+            <div class="section">
+                <div class="section-header active" onclick="toggleSection(this)">
+                    <span class="section-title">01. Template Auswahl</span>
+                    <span class="section-toggle">−</span>
+                </div>
+                <div class="section-content open">
+                    <div class="template-grid">
+                        <button class="template-btn active" data-template="1" onclick="selectTemplate(1)">
+                            <div class="thumb">CLASSIC</div>
+                            <span>Classic Bar</span>
+                        </button>
+                        <button class="template-btn" data-template="2" onclick="selectTemplate(2)">
+                            <div class="thumb">SPLIT</div>
+                            <span>Split Top</span>
+                        </button>
+                        <button class="template-btn" data-template="3" onclick="selectTemplate(3)">
+                            <div class="thumb">MINIMAL</div>
+                            <span>Ring Text</span>
+                        </button>
+                        <button class="template-btn" data-template="4" onclick="selectTemplate(4)">
+                            <div class="thumb">BOLD</div>
+                            <span>Bold Center</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Text Inputs -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">02. Text & Content</span>
+                    <span class="section-toggle">+</span>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Album Title *</label>
+                        <input type="text" id="albumTitle" value="BRUTALIST HITS">
+                    </div>
+                    <div class="form-group">
+                        <label>Artist Name *</label>
+                        <input type="text" id="artistName" value="NEO PUNK">
+                    </div>
+                    <div class="form-group">
+                        <label>Reference Number</label>
+                        <input type="text" id="refNumber" value="REF-666">
+                    </div>
+                    <div class="form-group">
+                        <label>Ring Text (Optional)</label>
+                        <input type="text" id="ringText" value="MADE WITH RAGE">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Inner Area -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">03. Inner Circle</span>
+                    <span class="section-toggle">+</span>
+                </div>
+                <div class="section-content">
+                    <div class="radio-group" style="margin-bottom: 16px;">
+                        <div class="radio-btn">
+                            <input type="radio" name="innerMode" id="innerWhite" value="white" checked>
+                            <label for="innerWhite">Weiß</label>
+                        </div>
+                        <div class="radio-btn">
+                            <input type="radio" name="innerMode" id="innerColor" value="color">
+                            <label for="innerColor">Farbe</label>
+                        </div>
+                        <div class="radio-btn">
+                            <input type="radio" name="innerMode" id="innerImage" value="image">
+                            <label for="innerImage">Bild</label>
+                        </div>
+                    </div>
+                    
+                    <div id="colorPickerGroup" style="display:none;">
+                        <div class="form-group">
+                            <label>Hintergrundfarbe</label>
+                            <input type="color" id="innerColor" value="#FF006E">
+                        </div>
+                    </div>
+                    
+                    <div id="imageUploadGroup" style="display:none;">
+                        <div class="file-upload">
+                            <input type="file" id="bgImage" accept="image/*">
+                            <div class="file-upload-label">📁 BILD HOCHLADEN</div>
+                        </div>
+                        <div class="image-preview" id="imagePreview">KEIN BILD</div>
+                        
+                        <div class="form-group" style="margin-top:16px;">
+                            <label>Zoom <span class="range-value" id="zoomValue">1.0x</span></label>
+                            <input type="range" id="imgZoom" min="0.1" max="3" step="0.1" value="1">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>X Offset</label>
+                                <input type="range" id="imgOffsetX" min="-500" max="500" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Y Offset</label>
+                                <input type="range" id="imgOffsetY" min="-500" max="500" value="0">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Rotation <span class="range-value" id="rotationValue">0°</span></label>
+                            <input type="range" id="imgRotation" min="0" max="360" value="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Outer Area -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">04. Outer Ring</span>
+                    <span class="section-toggle">+</span>
+                </div>
+                <div class="section-content">
+                    <div class="toggle-group">
+                        <span class="toggle-label">Außerhalb: Transparent</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="outsideBlack">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Schwarz</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Circle Settings -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">05. Geometrie</span>
+                    <span class="section-toggle">+</span>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Ring Dicke <span class="range-value" id="ringThicknessValue">20px</span></label>
+                        <input type="range" id="ringThickness" min="1" max="100" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label>Center Dot <span class="range-value" id="centerDotValue">30px</span></label>
+                        <input type="range" id="centerDotSize" min="0" max="100" value="30">
+                    </div>
+                    <div class="form-group">
+                        <label>Nadel Dicke <span class="range-value" id="needleThicknessValue">2px</span></label>
+                        <input type="range" id="needleThickness" min="0" max="10" value="2">
+                    </div>
+                    <div class="form-group">
+                        <label>Nadel Länge <span class="range-value" id="needleLengthValue">150px</span></label>
+                        <input type="range" id="needleLength" min="0" max="400" value="150">
+                    </div>
+                    <div class="toggle-group" style="margin-top:16px;">
+                        <span class="toggle-label">Center Hole sichtbar</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="centerHole">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Typography -->
+            <div class="section">
+                <div class="section-header" onclick="toggleSection(this)">
+                    <span class="section-title">06. Typografie</span>
+                    <span class="section-toggle">+</span>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Font Family</label>
+                        <select id="fontFamily">
+                            <option value="Archivo Black">Archivo Black (Bold)</option>
+                            <option value="Anton">Anton (Condensed)</option>
+                            <option value="Syne">Syne (Modern)</option>
+                            <option value="Space Grotesk">Space Grotesk (Tech)</option>
+                            <option value="Impact">Impact (System)</option>
+                            <option value="Arial Black">Arial Black (System)</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Weight</label>
+                            <select id="fontWeight">
+                                <option value="400">Normal</option>
+                                <option value="700" selected>Bold</option>
+                                <option value="900">Black</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Spacing <span class="range-value" id="letterSpacingValue">0px</span></label>
+                            <input type="range" id="letterSpacing" min="-5" max="20" value="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Title Size <span class="range-value" id="titleSizeValue">48px</span></label>
+                            <input type="range" id="titleSize" min="20" max="120" value="48">
+                        </div>
+                        <div class="form-group">
+                            <label>Artist Size <span class="range-value" id="artistSizeValue">32px</span></label>
+                            <input type="range" id="artistSize" min="16" max="80" value="32">
+                        </div>
+                    </div>
+                    <div class="toggle-group" style="margin-top:16px;">
+                        <span class="toggle-label">Schwarzer Balken (T1)</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="blackBar" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-section">
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="exportPNG()">
+                        💾 EXPORT PNG (3000px)
+                    </button>
+                    <button class="btn btn-secondary" onclick="exportSVG()">
+                        📐 EXPORT SVG
+                    </button>
+                    <button class="btn btn-danger" onclick="resetAll()">
+                        🗑️ ALLES LÖSCHEN
+                    </button>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Preview Area -->
+        <main class="preview-area">
+            <div class="stats-display">
+                <div>TEMPLATE: <span id="statTemplate">CLASSIC BAR</span></div>
+                <div>SIZE: <span>3000×3000px</span></div>
+                <div>MODE: <span id="statMode">WHITE</span></div>
+                <div>ROTATION: <span id="statRotation">0°</span></div>
+            </div>
+            
+            <div class="safe-area-toggle" id="safeAreaToggle" onclick="toggleSafeArea()">
+                SAFE AREA: AUS
+            </div>
+            
+            <div class="preview-container">
+                <canvas id="previewCanvas" width="600" height="600"></canvas>
+            </div>
+            
+            <div class="preview-controls">
+                <div class="spin-control">
+                    <label>SPIN</label>
+                    <label class="toggle">
+                        <input type="checkbox" id="spinToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="spin-control">
+                    <label>RPM</label>
+                    <input type="range" id="rpmSlider" min="1" max="78" value="33" style="width:80px;">
+                    <span class="rpm-display" id="rpmValue">33</span>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Hidden Export Canvas -->
+    <canvas id="exportCanvas" width="3000" height="3000"></canvas>
+
+    <script>
+        // STATE
+        const state = {
+            template: 1,
+            albumTitle: 'BRUTALIST HITS',
+            artistName: 'NEO PUNK',
+            refNumber: 'REF-666',
+            ringText: 'MADE WITH RAGE',
+            innerMode: 'white',
+            innerColor: '#FF006E',
+            bgImage: null,
+            imgZoom: 1,
+            imgOffsetX: 0,
+            imgOffsetY: 0,
+            imgRotation: 0,
+            outsideBlack: false,
+            ringThickness: 20,
+            centerDotSize: 30,
+            needleThickness: 2,
+            needleLength: 150,
+            centerHole: false,
+            fontFamily: 'Archivo Black',
+            fontWeight: '700',
+            letterSpacing: 0,
+            titleSize: 48,
+            artistSize: 32,
+            blackBar: true,
+            safeArea: false,
+            spin: false,
+            rpm: 33,
+            rotation: 0
+        };
+        
+        const templateNames = {
+            1: 'CLASSIC BAR',
+            2: 'SPLIT TOP',
+            3: 'RING TEXT',
+            4: 'BOLD CENTER'
+        };
+        
+        // DOM
+        const previewCanvas = document.getElementById('previewCanvas');
+        const exportCanvas = document.getElementById('exportCanvas');
+        const previewCtx = previewCanvas.getContext('2d');
+        const exportCtx = exportCanvas.getContext('2d');
+        
+        let animationId = null;
+        let lastTime = 0;
+        
+        // INIT
+        (function init() {
+            setupEventListeners();
+            loadFromStorage();
+            renderLabel();
+            updateStats();
+        })();
+        
+        function setupEventListeners() {
+            // Text inputs
+            document.getElementById('albumTitle').addEventListener('input', (e) => {
+                state.albumTitle = e.target.value;
+                renderLabel();
+            });
+            
+            document.getElementById('artistName').addEventListener('input', (e) => {
+                state.artistName = e.target.value;
+                renderLabel();
+            });
+            
+            document.getElementById('refNumber').addEventListener('input', (e) => {
+                state.refNumber = e.target.value;
+                renderLabel();
+            });
+            
+            document.getElementById('ringText').addEventListener('input', (e) => {
+                state.ringText = e.target.value;
+                renderLabel();
+            });
+            
+            // Inner mode
+            document.querySelectorAll('input[name="innerMode"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    state.innerMode = e.target.value;
+                    document.getElementById('colorPickerGroup').style.display = 
+                        e.target.value === 'color' ? 'block' : 'none';
+                    document.getElementById('imageUploadGroup').style.display = 
+                        e.target.value === 'image' ? 'block' : 'none';
+                    renderLabel();
+                    updateStats();
+                });
+            });
+            
+            document.getElementById('innerColor').addEventListener('input', (e) => {
+                state.innerColor = e.target.value;
+                renderLabel();
+            });
+            
+            // Image upload
+            document.getElementById('bgImage').addEventListener('change', handleImageUpload);
+            
+            // Image controls
+            document.getElementById('imgZoom').addEventListener('input', (e) => {
+                state.imgZoom = parseFloat(e.target.value);
+                document.getElementById('zoomValue').textContent = state.imgZoom + 'x';
+                renderLabel();
+            });
+            
+            document.getElementById('imgOffsetX').addEventListener('input', (e) => {
+                state.imgOffsetX = parseInt(e.target.value);
+                renderLabel();
+            });
+            
+            document.getElementById('imgOffsetY').addEventListener('input', (e) => {
+                state.imgOffsetY = parseInt(e.target.value);
+                renderLabel();
+            });
+            
+            document.getElementById('imgRotation').addEventListener('input', (e) => {
+                state.imgRotation = parseInt(e.target.value);
+                document.getElementById('rotationValue').textContent = state.imgRotation + '°';
+                renderLabel();
+            });
+            
+            // Toggles
+            document.getElementById('outsideBlack').addEventListener('change', (e) => {
+                state.outsideBlack = e.target.checked;
+                renderLabel();
+            });
+            
+            document.getElementById('centerHole').addEventListener('change', (e) => {
+                state.centerHole = e.target.checked;
+                renderLabel();
+            });
+            
+            document.getElementById('blackBar').addEventListener('change', (e) => {
+                state.blackBar = e.target.checked;
+                renderLabel();
+            });
+            
+            // Sliders
+            document.getElementById('ringThickness').addEventListener('input', (e) => {
+                state.ringThickness = parseInt(e.target.value);
+                document.getElementById('ringThicknessValue').textContent = state.ringThickness + 'px';
+                renderLabel();
+            });
+            
+            document.getElementById('centerDotSize').addEventListener('input', (e) => {
+                state.centerDotSize = parseInt(e.target.value);
+                document.getElementById('centerDotValue').textContent = state.centerDotSize + 'px';
+                renderLabel();
+            });
+            
+            document.getElementById('needleThickness').addEventListener('input', (e) => {
+                state.needleThickness = parseInt(e.target.value);
+                document.getElementById('needleThicknessValue').textContent = state.needleThickness + 'px';
+                renderLabel();
+            });
+            
+            document.getElementById('needleLength').addEventListener('input', (e) => {
+                state.needleLength = parseInt(e.target.value);
+                document.getElementById('needleLengthValue').textContent = state.needleLength + 'px';
+                renderLabel();
+            });
+            
+            document.getElementById('letterSpacing').addEventListener('input', (e) => {
+                state.letterSpacing = parseInt(e.target.value);
+                document.getElementById('letterSpacingValue').textContent = state.letterSpacing + 'px';
+                renderLabel();
+            });
+            
+            document.getElementById('titleSize').addEventListener('input', (e) => {
+                state.titleSize = parseInt(e.target.value);
+                document.getElementById('titleSizeValue').textContent = state.titleSize + 'px';
+                renderLabel();
+            });
+            
+            document.getElementById('artistSize').addEventListener('input', (e) => {
+                state.artistSize = parseInt(e.target.value);
+                document.getElementById('artistSizeValue').textContent = state.artistSize + 'px';
+                renderLabel();
+            });
+            
+            // Selects
+            document.getElementById('fontFamily').addEventListener('change', (e) => {
+                state.fontFamily = e.target.value;
+                renderLabel();
+            });
+            
+            document.getElementById('fontWeight').addEventListener('change', (e) => {
+                state.fontWeight = e.target.value;
+                renderLabel();
+            });
+            
+            // Spin
+            document.getElementById('spinToggle').addEventListener('change', (e) => {
+                state.spin = e.target.checked;
+                if (state.spin) startSpin();
+                else stopSpin();
+            });
+            
+            document.getElementById('rpmSlider').addEventListener('input', (e) => {
+                state.rpm = parseInt(e.target.value);
+                document.getElementById('rpmValue').textContent = state.rpm;
+            });
+            
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    if (e.key === 's') {
+                        e.preventDefault();
+                        exportPNG();
+                    } else if (e.key === 'e') {
+                        e.preventDefault();
+                        exportSVG();
+                    }
+                }
+            });
+        }
+        
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.bgImage = img;
+                    document.getElementById('imagePreview').innerHTML = 
+                        `<img src="${event.target.result}" alt="Preview">`;
+                    renderLabel();
+                    showNotification('Bild geladen!');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function selectTemplate(num) {
+            state.template = num;
+            
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.dataset.template) === num);
+            });
+            
+            const presets = {
+                1: { titleSize: 48, artistSize: 32, needleLength: 150, blackBar: true },
+                2: { titleSize: 56, artistSize: 28, needleLength: 80, blackBar: false },
+                3: { titleSize: 32, artistSize: 24, needleLength: 0, blackBar: false },
+                4: { titleSize: 64, artistSize: 36, needleLength: 120, blackBar: false }
+            };
+            
+            const preset = presets[num];
+            Object.assign(state, preset);
+            
+            document.getElementById('titleSize').value = preset.titleSize;
+            document.getElementById('artistSize').value = preset.artistSize;
+            document.getElementById('needleLength').value = preset.needleLength;
+            document.getElementById('blackBar').checked = preset.blackBar;
+            
+            document.getElementById('titleSizeValue').textContent = preset.titleSize + 'px';
+            document.getElementById('artistSizeValue').textContent = preset.artistSize + 'px';
+            document.getElementById('needleLengthValue').textContent = preset.needleLength + 'px';
+            
+            renderLabel();
+            updateStats();
+        }
+        
+        function toggleSection(header) {
+            const content = header.nextElementSibling;
+            const toggle = header.querySelector('.section-toggle');
+            header.classList.toggle('active');
+            content.classList.toggle('open');
+            toggle.textContent = content.classList.contains('open') ? '−' : '+';
+        }
+        
+        function toggleSafeArea() {
+            state.safeArea = !state.safeArea;
+            const btn = document.getElementById('safeAreaToggle');
+            btn.textContent = `SAFE AREA: ${state.safeArea ? 'AN' : 'AUS'}`;
+            btn.classList.toggle('active', state.safeArea);
+            renderLabel();
+        }
+        
+        // RENDER
+        function renderLabel() {
+            renderToCanvas(previewCtx, previewCanvas.width, previewCanvas.height, false);
+        }
+        
+        function renderToCanvas(ctx, width, height, isExport) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const outerRadius = (width / 2) - 40;
+            const scale = width / 3000;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Background
+            if (state.outsideBlack) {
+                ctx.fillStyle = '#0a0a0a';
+                ctx.fillRect(0, 0, width, height);
+            } else if (!isExport) {
+                const checkSize = 30 * scale;
+                for (let x = 0; x < width; x += checkSize) {
+                    for (let y = 0; y < height; y += checkSize) {
+                        ctx.fillStyle = ((x/checkSize + y/checkSize) % 2 === 0) ? '#1a1a1a' : '#222';
+                        ctx.fillRect(x, y, checkSize, checkSize);
+                    }
+                }
+            }
+            
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(state.rotation * Math.PI / 180);
+            ctx.translate(-centerX, -centerY);
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
+            ctx.clip();
+            
+            if (state.innerMode === 'white') {
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+            } else if (state.innerMode === 'color') {
+                ctx.fillStyle = state.innerColor;
+                ctx.fill();
+            } else if (state.innerMode === 'image' && state.bgImage) {
+                drawBackgroundImage(ctx, centerX, centerY, outerRadius, scale);
+            } else {
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+            }
+            
+            ctx.restore();
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
+            ctx.lineWidth = state.ringThickness * scale;
+            ctx.strokeStyle = '#000000';
+            ctx.stroke();
+            
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(state.rotation * Math.PI / 180);
+            ctx.translate(-centerX, -centerY);
+            
+            switch(state.template) {
+                case 1: drawTemplate1(ctx, centerX, centerY, outerRadius, scale); break;
+                case 2: drawTemplate2(ctx, centerX, centerY, outerRadius, scale); break;
+                case 3: drawTemplate3(ctx, centerX, centerY, outerRadius, scale); break;
+                case 4: drawTemplate4(ctx, centerX, centerY, outerRadius, scale); break;
+            }
+            
+            ctx.restore();
+            
+            ctx.save();
+            ctx.translate(centerX, centerY);
+            ctx.rotate(state.rotation * Math.PI / 180);
+            
+            if (state.centerDotSize > 0) {
+                ctx.beginPath();
+                ctx.arc(0, 0, state.centerDotSize * scale, 0, Math.PI * 2);
+                ctx.fillStyle = '#000000';
+                ctx.fill();
+            }
+            
+            if (state.needleLength > 0 && state.needleThickness > 0) {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(0, state.needleLength * scale);
+                ctx.lineWidth = state.needleThickness * scale;
+                ctx.strokeStyle = '#000000';
+                ctx.stroke();
+            }
+            
+            if (state.centerHole) {
+                ctx.beginPath();
+                ctx.arc(0, 0, 15 * scale, 0, Math.PI * 2);
+                ctx.fillStyle = state.outsideBlack ? '#0a0a0a' : 'rgba(0,0,0,0.3)';
+                ctx.fill();
+            }
+            
+            ctx.restore();
+            
+            if (state.safeArea && !isExport) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, outerRadius * 0.85, 0, Math.PI * 2);
+                ctx.strokeStyle = '#FF006E';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([15, 10]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+        
+        function drawBackgroundImage(ctx, cx, cy, radius, scale) {
+            if (!state.bgImage) return;
+            
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+            ctx.clip();
+            
+            const img = state.bgImage;
+            const zoom = state.imgZoom;
+            const offsetX = state.imgOffsetX * scale;
+            const offsetY = state.imgOffsetY * scale;
+            const rotation = state.imgRotation * Math.PI / 180;
+            
+            ctx.translate(cx + offsetX, cy + offsetY);
+            ctx.rotate(rotation);
+            
+            const size = Math.max(img.width, img.height) * zoom * scale;
+            const drawWidth = (img.width / Math.max(img.width, img.height)) * size;
+            const drawHeight = (img.height / Math.max(img.width, img.height)) * size;
+            
+            ctx.drawImage(img, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight);
+            ctx.restore();
+        }
+        
+        // TEMPLATES
+        function drawTemplate1(ctx, cx, cy, radius, scale) {
+            const fontSize = state.titleSize * scale;
+            const artistSize = state.artistSize * scale;
+            const barY = cy - radius * 0.5;
+            
+            ctx.font = `${state.fontWeight} ${fontSize}px "${state.fontFamily}", sans-serif`;
+            ctx.textBaseline = 'middle';
+            
+            if (state.blackBar) {
+                const barHeight = fontSize * 1.6;
+                const barWidth = radius * 1.8;
+                
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(cx - barWidth/2, barY - barHeight/2, barWidth, barHeight);
+                
+                ctx.fillStyle = '#ffffff';
+                ctx.textAlign = 'center';
+                ctx.fillText(state.albumTitle.toUpperCase(), cx, barY);
+            } else {
+                ctx.fillStyle = '#000000';
+                ctx.textAlign = 'center';
+                ctx.fillText(state.albumTitle.toUpperCase(), cx, barY);
+            }
+            
+            ctx.font = `${state.fontWeight} ${artistSize}px "${state.fontFamily}", sans-serif`;
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.fillText(state.artistName.toUpperCase(), cx, barY + fontSize * 1.4);
+            
+            ctx.font = `bold ${16 * scale}px "Space Grotesk", monospace`;
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'right';
+            const refX = cx + radius * 0.75;
+            const refY = cy + radius * 0.1;
+            
+            ctx.beginPath();
+            ctx.arc(refX - 35 * scale, refY, 10 * scale, 0, Math.PI * 2);
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3 * scale;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(refX - 42 * scale, refY);
+            ctx.lineTo(refX - 28 * scale, refY);
+            ctx.lineTo(refX - 32 * scale, refY - 4 * scale);
+            ctx.moveTo(refX - 28 * scale, refY);
+            ctx.lineTo(refX - 32 * scale, refY + 4 * scale);
+            ctx.stroke();
+            
+            ctx.fillText(state.refNumber, refX, refY);
+        }
+        
+        function drawTemplate2(ctx, cx, cy, radius, scale) {
+            const fontSize = state.titleSize * scale;
+            const artistSize = state.artistSize * scale;
+            
+            ctx.font = `${state.fontWeight} ${fontSize}px "${state.fontFamily}", sans-serif`;
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(state.albumTitle.toUpperCase(), cx, cy - radius * 0.6);
+            
+            ctx.font = `${state.fontWeight} ${artistSize}px "${state.fontFamily}", sans-serif`;
+            ctx.fillText(state.artistName.toUpperCase(), cx, cy - radius * 0.6 + fontSize * 1.2);
+            
+            ctx.font = `bold ${16 * scale}px "Space Grotesk", monospace`;
+            ctx.textAlign = 'right';
+            ctx.fillText(state.refNumber, cx + radius * 0.75, cy + radius * 0.75);
+            
+            if (state.needleThickness > 0) {
+                ctx.beginPath();
+                ctx.moveTo(cx - 50 * scale, cy);
+                ctx.lineTo(cx - 20 * scale, cy);
+                ctx.moveTo(cx + 20 * scale, cy);
+                ctx.lineTo(cx + 50 * scale, cy);
+                ctx.lineWidth = state.needleThickness * scale;
+                ctx.strokeStyle = '#000000';
+                ctx.stroke();
+            }
+        }
+        
+        function drawTemplate3(ctx, cx, cy, radius, scale) {
+            const fontSize = state.titleSize * scale * 0.8;
+            const artistSize = state.artistSize * scale * 0.8;
+            
+            ctx.font = `${state.fontWeight} ${fontSize}px "${state.fontFamily}", sans-serif`;
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText(state.albumTitle.toUpperCase(), cx - radius * 0.75, cy - radius * 0.75);
+            
+            ctx.font = `${state.fontWeight} ${artistSize}px "${state.fontFamily}", sans-serif`;
+            ctx.fillText(state.artistName.toUpperCase(), cx - radius * 0.75, cy - radius * 0.75 + fontSize * 1.1);
+            
+            ctx.font = `bold ${16 * scale}px "Space Grotesk", monospace`;
+            ctx.textAlign = 'right';
+            ctx.fillText(state.refNumber, cx + radius * 0.75, cy);
+            
+            if (state.ringText) {
+                drawCircularText(ctx, cx, cy, radius * 0.92, state.ringText.toUpperCase(), 14 * scale);
+            }
+        }
+        
+        function drawTemplate4(ctx, cx, cy, radius, scale) {
+            const fontSize = state.titleSize * scale;
+            const artistSize = state.artistSize * scale;
+            
+            ctx.font = `${state.fontWeight} ${fontSize}px "${state.fontFamily}", sans-serif`;
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(state.albumTitle.toUpperCase(), cx, cy - fontSize * 0.6);
+            
+            ctx.font = `${state.fontWeight} ${artistSize}px "${state.fontFamily}", sans-serif`;
+            ctx.fillText(state.artistName.toUpperCase(), cx, cy + artistSize * 0.5);
+            
+            ctx.font = `bold ${16 * scale}px "Space Grotesk", monospace`;
+            ctx.textAlign = 'right';
+            ctx.fillText(state.refNumber, cx + radius * 0.75, cy - radius * 0.75);
+            
+            if (state.needleThickness > 0 && state.needleLength > 0) {
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(cx, cy - state.needleLength * 0.5 * scale);
+                ctx.lineWidth = state.needleThickness * scale;
+                ctx.strokeStyle = '#000000';
+                ctx.stroke();
+            }
+        }
+        
+        function drawCircularText(ctx, cx, cy, radius, text, fontSize) {
+            ctx.save();
+            ctx.font = `${fontSize}px "Space Grotesk", monospace`;
+            ctx.fillStyle = '#000000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const angleStep = (Math.PI * 1.5) / text.length;
+            const startAngle = -Math.PI * 0.75;
+            
+            for (let i = 0; i < text.length; i++) {
+                const angle = startAngle + angleStep * i;
+                const x = cx + Math.cos(angle) * radius;
+                const y = cy + Math.sin(angle) * radius;
+                
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle + Math.PI / 2);
+                ctx.fillText(text[i], 0, 0);
+                ctx.restore();
+            }
+            
+            ctx.restore();
+        }
+        
+        // ANIMATION
+        function startSpin() {
+            if (animationId) return;
+            
+            function animate(timestamp) {
+                if (!lastTime) lastTime = timestamp;
+                const delta = timestamp - lastTime;
+                lastTime = timestamp;
+                
+                const degreesPerFrame = (state.rpm / 60) * 360 * (delta / 1000);
+                state.rotation = (state.rotation + degreesPerFrame) % 360;
+                
+                renderLabel();
+                updateStats();
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            lastTime = 0;
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function stopSpin() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+        }
+        
+        function updateStats() {
+            document.getElementById('statTemplate').textContent = templateNames[state.template];
+            document.getElementById('statMode').textContent = state.innerMode.toUpperCase();
+            document.getElementById('statRotation').textContent = Math.floor(state.rotation) + '°';
+        }
+        
+        // EXPORT
+        function exportPNG() {
+            renderToCanvas(exportCtx, 3000, 3000, true);
+            
+            const link = document.createElement('a');
+            const filename = sanitizeFilename(`${state.artistName}_${state.albumTitle}_${state.refNumber}.png`);
+            link.download = filename;
+            link.href = exportCanvas.toDataURL('image/png');
+            link.click();
+            
+            showNotification('PNG EXPORTIERT! 💾');
+        }
+        
+        function exportSVG() {
+            const svg = generateSVG();
+            const blob = new Blob([svg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            const filename = sanitizeFilename(`${state.artistName}_${state.albumTitle}_${state.refNumber}.svg`);
+            link.download = filename;
+            link.href = url;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('SVG EXPORTIERT! 📐');
+        }
+        
+        function generateSVG() {
+            const size = 3000;
+            const center = size / 2;
+            const radius = (size / 2) - 40;
+            
+            let svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="circleClip">
+      <circle cx="${center}" cy="${center}" r="${radius}"/>
+    </clipPath>
+  </defs>`;
+            
+            if (state.outsideBlack) {
+                svg += `  <rect width="${size}" height="${size}" fill="#0a0a0a"/>`;
+            }
+            
+            let fill = '#ffffff';
+            if (state.innerMode === 'color') fill = state.innerColor;
+            
+            svg += `  <circle cx="${center}" cy="${center}" r="${radius}" fill="${fill}" stroke="#000000" stroke-width="${state.ringThickness}"/>`;
+            
+            if (state.centerDotSize > 0) {
+                svg += `  <circle cx="${center}" cy="${center}" r="${state.centerDotSize}" fill="#000000"/>`;
+            }
+            
+            if (state.needleLength > 0 && state.needleThickness > 0) {
+                svg += `  <line x1="${center}" y1="${center}" x2="${center}" y2="${center + state.needleLength}" 
+          stroke="#000000" stroke-width="${state.needleThickness}"/>`;
+            }
+            
+            if (state.centerHole) {
+                svg += `  <circle cx="${center}" cy="${center}" r="15" fill="${state.outsideBlack ? '#0a0a0a' : 'rgba(0,0,0,0.3)}"/>`;
+            }
+            
+            svg += '</svg>';
+            return svg;
+        }
+        
+        function sanitizeFilename(name) {
+            return name.replace(/[^a-z0-9_-]/gi, '_').toLowerCase();
+        }
+        
+        function showNotification(text, isError = false) {
+            const notif = document.getElementById('notification');
+            notif.textContent = text;
+            notif.classList.toggle('error', isError);
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 3000);
+        }
+        
+        // STORAGE
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('vinylLabelBuilder_v2');
+                if (!saved) return;
+                
+                const data = JSON.parse(saved);
+                Object.assign(state, data);
+                
+                document.getElementById('albumTitle').value = state.albumTitle;
+                document.getElementById('artistName').value = state.artistName;
+                document.getElementById('refNumber').value = state.refNumber;
+                document.getElementById('ringText').value = state.ringText;
+                document.getElementById('innerColor').value = state.innerColor;
+                document.getElementById('outsideBlack').checked = state.outsideBlack;
+                document.getElementById('ringThickness').value = state.ringThickness;
+                document.getElementById('centerDotSize').value = state.centerDotSize;
+                document.getElementById('needleThickness').value = state.needleThickness;
+                document.getElementById('needleLength').value = state.needleLength;
+                document.getElementById('centerHole').checked = state.centerHole;
+                document.getElementById('fontFamily').value = state.fontFamily;
+                document.getElementById('fontWeight').value = state.fontWeight;
+                document.getElementById('letterSpacing').value = state.letterSpacing;
+                document.getElementById('titleSize').value = state.titleSize;
+                document.getElementById('artistSize').value = state.artistSize;
+                document.getElementById('blackBar').checked = state.blackBar;
+                document.getElementById('imgZoom').value = state.imgZoom;
+                document.getElementById('imgOffsetX').value = state.imgOffsetX;
+                document.getElementById('imgOffsetY').value = state.imgOffsetY;
+                document.getElementById('imgRotation').value = state.imgRotation;
+                
+                document.getElementById('ringThicknessValue').textContent = state.ringThickness + 'px';
+                document.getElementById('centerDotValue').textContent = state.centerDotSize + 'px';
+                document.getElementById('needleThicknessValue').textContent = state.needleThickness + 'px';
+                document.getElementById('needleLengthValue').textContent = state.needleLength + 'px';
+                document.getElementById('letterSpacingValue').textContent = state.letterSpacing + 'px';
+                document.getElementById('titleSizeValue').textContent = state.titleSize + 'px';
+                document.getElementById('artistSizeValue').textContent = state.artistSize + 'px';
+                document.getElementById('zoomValue').textContent = state.imgZoom + 'x';
+                document.getElementById('rotationValue').textContent = state.imgRotation + '°';
+                
+                document.querySelectorAll('.template-btn').forEach(btn => {
+                    btn.classList.toggle('active', parseInt(btn.dataset.template) === state.template);
+                });
+                
+                document.getElementById('colorPickerGroup').style.display = 
+                    state.innerMode === 'color' ? 'block' : 'none';
+                document.getElementById('imageUploadGroup').style.display = 
+                    state.innerMode === 'image' ? 'block' : 'none';
+                    
+            } catch (e) {
+                console.error('Error loading from storage:', e);
+            }
+        }
+        
+        function resetAll() {
+            if (confirm('⚠️ ALLES LÖSCHEN? BIST DU SICHER?')) {
+                localStorage.removeItem('vinylLabelBuilder_v2');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
